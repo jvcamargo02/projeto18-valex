@@ -14,3 +14,12 @@ export async function findByApiKey(apiKey: string | string[] | undefined) {
 
   return result.rows[0];
 }
+
+export async function findById(id: number) {
+  const result = await connection.query(
+    `SELECT * FROM companies WHERE "id"=$1`,
+    [id]
+  );
+
+  return result.rows[0];
+}

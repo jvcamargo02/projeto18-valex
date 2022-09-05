@@ -6,7 +6,7 @@ import {
     findById,
     update,
 } from "../repositories/cardRepository";
-import { checkExpiration, encryptCVV } from "../utils/cardsFunctions";
+import { checkExpiration, encryptCVV, verifyPassword } from "../utils/cardsFunctions";
 import * as rechargeRepository from "../repositories/rechargeRepository";
 import * as paymentRepository from "../repositories/paymentRepository";
 
@@ -100,8 +100,4 @@ function sum(object: any): number {
     return totalAmount;
 }
 
-function verifyPassword(hashPassword: string, password: string) {
-    const verify = bcrypt.compareSync(password, hashPassword);
 
-    if (!verify) throw { type: "unathorized", message: "Wrong password" };
-}

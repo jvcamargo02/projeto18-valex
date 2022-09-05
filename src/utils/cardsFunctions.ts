@@ -1,6 +1,7 @@
 import dayjs from "dayjs";
 import Cryptr from "cryptr";
 import { faker } from "@faker-js/faker";
+import bcrypt from "bcrypt"
 
 export function isEmployeed(companyId: number, companyReqId: number) {
     if (companyId !== companyReqId)
@@ -49,4 +50,10 @@ export function encryptCVV() {
     const SECRET = `${process.env.SECRET}`
     const cryptr = new Cryptr(SECRET);
     return cryptr.encrypt(faker.finance.creditCardCVV());
+}
+
+export function verifyPassword(hashPassword: string, password: string) {
+    const verify = bcrypt.compareSync(password, hashPassword);
+
+    if (!verify) throw { type: "unathorized", message: "Wrong password" };
 }

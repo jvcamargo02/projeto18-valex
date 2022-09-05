@@ -3,7 +3,8 @@ import { ObjectSchema } from "joi";
 
 export function schemaReqHeadersValidator(schema: ObjectSchema) {
     return (req: Request, res: Response, next: NextFunction) => {
-        const apikey = req.headers.apikey;
+        const apikey = req.headers["x-api-key"];
+
         const { error } = schema.validate({ apikey });
 
         if (error) {

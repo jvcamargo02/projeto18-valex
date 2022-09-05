@@ -10,7 +10,7 @@ export async function keyApiValidator(
     res: Response,
     next: NextFunction
 ) {
-    const apiKey: any = req.headers.apikey;
+    const apiKey: any = req.headers["x-api-key"];
 
     try {
         const company = await findApiKey(apiKey);

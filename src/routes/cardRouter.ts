@@ -1,4 +1,4 @@
-import { Router, Request, Response } from "express";
+import { Router } from "express";
 import { activateCard, createCard, getBalance, lockCard } from "../controllers/cardController";
 import {
     findCardById,
