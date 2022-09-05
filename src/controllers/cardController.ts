@@ -28,8 +28,9 @@ export async function createCard(req: Request, res: Response) {
 export async function activateCard(
     req: Request,
     res: Response
-) {
-    const { id, password } = req.body
+) { 
+    const id = +req.params.id
+    const { password } = req.body
     const { card } = res.locals
 
     try {
@@ -52,3 +53,19 @@ export async function getBalance(req: Request, res: Response) {
     
 }
 
+export async function lockCard(req: Request, res: Response) {
+    const { password } = req.body
+    const { card } = res.locals
+
+    try {
+        await cardService.lockCard(card, password)
+
+        res.sendStatus(200)
+    } catch (e) {
+        console.log(e)
+
+        res.status(500).send(e)
+    }
+
+
+}

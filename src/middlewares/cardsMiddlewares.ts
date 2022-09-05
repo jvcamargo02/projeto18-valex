@@ -1,5 +1,4 @@
 import { Request, Response, NextFunction } from "express";
-import dayjs from "dayjs";
 import * as cardRepository from "../repositories/cardRepository";
 import { findApiKey } from "../services/companyServices";
 import * as employeesService from "../services/employeesService";
@@ -82,7 +81,6 @@ export async function findCardById(
     try {
         
         const card = await existingCard(id);
-
         res.locals.card = card;
 
         next();
@@ -102,4 +100,19 @@ export function itsValidCard(req: Request, res: Response, next: NextFunction) {
     cardFunctionsValidate.uncryptCvv(securityCode, cvv);
 
     next();
+}
+
+export function isBlockedCard(type: string) {
+
+    return (req: Request, res: Response, next: NextFunction) => {
+    const { isBlocked } = res.locals.card
+
+    if (isBlocked && type === "lock") {
+        throw { type: "bad_request", message: "Card is blocked" };
+    } else if (!isBlocked && type === "unlock") {
+        throw { type: "bad_request", message: "Card isn't blocked" };
+    }
+        next()
+    }
+
 }

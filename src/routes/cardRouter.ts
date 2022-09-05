@@ -1,8 +1,9 @@
 import { Router, Request, Response } from "express";
-import { activateCard, createCard, getBalance } from "../controllers/cardController";
+import { activateCard, createCard, getBalance, lockCard } from "../controllers/cardController";
 import {
     findCardById,
     findEmployee,
+    isBlockedCard,
     isValidCardType,
     itsValidCard,
     keyApiValidator,
@@ -15,6 +16,7 @@ import {
     apiKeySchema,
     cardActivateSchema,
     createCardSchema,
+    cardLockSchema
 } from "../schemas/cardSchemas";
 
 const cardRouter = Router();
@@ -29,16 +31,31 @@ cardRouter.post(
     createCard
 );
 cardRouter.post(
-    "/activate-card",
+    "/new-card/:id",
     schemaReqBodyValidator(cardActivateSchema),
     findCardById,
     itsValidCard,
     activateCard
 );
 cardRouter.get(
-    "/:id",
+    "/card/:id",
     findCardById,
     getBalance
 )
+cardRouter.post(
+    "/card/:id/lock",
+    schemaReqBodyValidator(cardLockSchema),
+    findCardById,
+    isBlockedCard("lock"),
+    lockCard
+)
+cardRouter.post(
+    "/card/:id/unlock",
+    schemaReqBodyValidator(cardLockSchema),
+    findCardById,
+    isBlockedCard("unlock"),
+    lockCard
+)
+
 
 export default cardRouter;

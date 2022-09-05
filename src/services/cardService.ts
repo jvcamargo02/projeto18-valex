@@ -6,7 +6,7 @@ import {
     findById,
     update,
 } from "../repositories/cardRepository";
-import { encryptCVV } from "../utils/cardsFunctions";
+import { checkExpiration, encryptCVV } from "../utils/cardsFunctions";
 import * as rechargeRepository from "../repositories/rechargeRepository";
 import * as paymentRepository from "../repositories/paymentRepository";
 
@@ -24,7 +24,7 @@ export function generateCardData(
         password: undefined,
         isVirtual: false,
         originalCardId: undefined,
-        isBlocked: true,
+        isBlocked: false,
         type,
     };
 }
@@ -32,7 +32,7 @@ export function generateCardData(
 export async function existingCard(id: number) {
     const card = await findById(id);
 
-    if (!card) throw { type: "not_found", message: "card id isn't existing" };
+    if (!card) throw { type: "not_found", message: "card id doesn't exist" };
 
     return card;
 }
@@ -44,7 +44,7 @@ function generateCardHolderName(fullName: string) {
     names.forEach((name, index) => {
         if (name.length > 3 && (index === 0 || index === names.length - 1)) {
             holdName.push(name);
-        } else {
+        } else if (name.length > 3) {
             holdName.push(name[0]);
         }
     });
@@ -73,8 +73,19 @@ export async function getBalance(id: number) {
     return {
         balance,
         transactions,
-        recharges
-    }
+        recharges,
+    };
+}
+
+export async function lockCard(card: any, password: string) {
+    const { expirationDate, isBlocked } = card;
+
+    checkExpiration(expirationDate);
+    verifyPassword(card.password, password);
+
+    const cardData = { ...card, isBlocked: !isBlocked };
+
+    await update(card.id, cardData);
 }
 
 function sum(object: any): number {
@@ -83,8 +94,14 @@ function sum(object: any): number {
     for (let i = 0; i < object.length; i++) {
         const { amount } = object[i];
 
-        totalAmount += amount
+        totalAmount += amount;
     }
 
-    return totalAmount
+    return totalAmount;
+}
+
+function verifyPassword(hashPassword: string, password: string) {
+    const verify = bcrypt.compareSync(password, hashPassword);
+
+    if (!verify) throw { type: "unathorized", message: "Wrong password" };
 }
